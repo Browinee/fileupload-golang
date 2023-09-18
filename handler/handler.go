@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fileupload/meta"
 	"fileupload/util"
 	"io"
@@ -22,7 +23,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request){
 		io.WriteString(w, string(data))
 	} else if r.Method == "POST" {
 		file, head, err := r.FormFile("file")
-
 		if err != nil {
 			log.Printf("Failed to get data, err: %s\n", err.Error())
 			return
@@ -50,6 +50,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request){
 	  newFile.Seek(0,0)
 
 	  fileMeta.FileSha1 = util.FileSha1(newFile)
+		log.Printf("file name %s : %s",fileMeta.FileName, fileMeta.FileSha1)
 		meta.UpdateFileMeta(fileMeta)
    http.Redirect(w, r, "./file/upload/suc", http.StatusFound)
 	}
@@ -57,4 +58,15 @@ func UploadHandler(w http.ResponseWriter, r *http.Request){
 
 func UploadSucHandler(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, "Upload finished!")
+}
+
+func GetFileMetaHandler( w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	 filehash := r.URL.Query().Get("filehash")
+   fMeta := meta.GetFileMeta(filehash)
+	 data, err := json.Marshal(fMeta)
+	 if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	 }
+	 w.Write(data)
 }
