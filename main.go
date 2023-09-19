@@ -2,6 +2,7 @@ package main
 
 import (
 	"fileupload/handler"
+	"fileupload/middleware"
 	"fmt"
 	"net/http"
 )
@@ -19,7 +20,7 @@ func main(){
 	http.HandleFunc("/file/delete", handler.FileDeleteHandler)
 	http.HandleFunc("/user/signup", handler.SignupHandler)
 	http.HandleFunc("/user/signin", handler.SigninHandler)
-	http.HandleFunc("/user/info", handler.UserInfoHandler)
+	http.HandleFunc("/user/info", middleware.HTTPInterceptor(handler.UserInfoHandler))
 
 
 

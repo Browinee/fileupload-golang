@@ -95,16 +95,9 @@ func GenToken(username string) string {
 	return tokenPrefix + ts[:8]
 }
 
-// UserInfoHandler ： 查询用户信息
 func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.Form.Get("username")
-	token := r.Form.Get("token")
-	isValidToken := IsTokenValid(token)
-	if !isValidToken {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
 
 	user, err := db.GetUserInfo(username)
 	if err != nil {
