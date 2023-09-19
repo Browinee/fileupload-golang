@@ -94,3 +94,36 @@ func GenToken(username string) string {
 	tokenPrefix := util.MD5([]byte(username + ts + "_tokensalt"))
 	return tokenPrefix + ts[:8]
 }
+
+// UserInfoHandler ： 查询用户信息
+func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	username := r.Form.Get("username")
+	token := r.Form.Get("token")
+	isValidToken := IsTokenValid(token)
+	if !isValidToken {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	user, err := db.GetUserInfo(username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	resp := util.RespMsg{
+		Code: 0,
+		Msg:  "OK",
+		Data: user,
+	}
+	w.Write(resp.JSONBytes())
+}
+
+
+func IsTokenValid(token string) bool {
+	if len(token) != 40 {
+		return false
+	}
+	// 方便起見，只檢查len
+	return true
+}
