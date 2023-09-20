@@ -5,6 +5,7 @@ import (
 	db "fileupload/db"
 	"fileupload/meta"
 	"fileupload/util"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -168,4 +169,47 @@ func FileQueryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(data)
+}
+
+func TryFastUploadHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	log.Printf("r.Form------", r.Form)
+	username := r.Form.Get("username")
+	filehash := r.Form.Get("filehash")
+	filename := r.Form.Get("filename")
+	filesize, _ := strconv.Atoi(r.Form.Get("filesize"))
+
+	fileMeta, err := meta.GetFileMetaDB(filehash)
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if fileMeta.FileSha1 == "" {
+		resp := util.RespMsg{
+			Code: -1,
+			Msg:  "Fail to fast upload. Please use normal upload",
+		}
+		w.Write(resp.JSONBytes())
+		return
+	}
+
+	suc := db.OnUserFileUploadFinished(
+		username, filehash, filename, int64(filesize))
+	if suc {
+		resp := util.RespMsg{
+			Code: 0,
+			Msg:  "Fast upload successfully.",
+		}
+		w.Write(resp.JSONBytes())
+		return
+	}
+	resp := util.RespMsg{
+		Code: -2,
+		Msg:  "Fail to fast upload. Please try later.",
+	}
+	w.Write(resp.JSONBytes())
+	return
+
 }

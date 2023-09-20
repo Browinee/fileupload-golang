@@ -60,11 +60,27 @@
           data-msg-placeholder="选择文件"
         />
         <button id="上传" type="button" onclick="onUpload();">upload</button>
+        <button id="秒傳" type="button" onclick="onFastUpload();">
+          fast upload
+        </button>
       </form>
     </div>
   </body>
 
   <script>
+    function onFastUpload() {
+      var upUrl = "/file/fastupload";
+      console.log("form", $("#file")[0].files);
+      $.ajax({
+        url: upUrl,
+        type: "POST",
+        cache: false,
+        data: new FormData($("#upForm")[0]),
+        processData: false,
+        contentType: false,
+      });
+    }
+
     function onUpload() {
       var upUrl = "/file/upload";
       console.log("form", $("#file")[0].files);
