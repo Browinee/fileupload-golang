@@ -39,6 +39,10 @@ CREATE TABLE `tbl_user_token` (
   UNIQUE KEY `idx_username` (`user_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+//這裡要注意，unique key是 user_name以及file_sha1
+// 所以當OnUserFileUploadFinished用insert ignore時
+／／如果file_sha1or user_name一樣，就不會新增紀錄
+// 所以如果把 UNIQUE拿掉，那儘管上面兩個重複，table仍會新增一條數據
 CREATE TABLE `tbl_user_file` (
   `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `user_name` varchar(64) NOT NULL,
