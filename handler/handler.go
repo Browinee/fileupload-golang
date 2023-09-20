@@ -2,12 +2,14 @@ package handler
 
 import (
 	"encoding/json"
+	db "fileupload/db"
 	"fileupload/meta"
 	"fileupload/util"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -46,13 +48,22 @@ func UploadHandler(w http.ResponseWriter, r *http.Request){
 			log.Printf("Failed to save data into file, err: %s\n", err.Error())
 			return
 		}
-		//  newFile 文件对象的读写位置重置到文件的开头，这样你可以从文件的开头再次读取数据，而不是在文件的当前位置继续读取。这
+		//  newFile 文件对象的读写位置重置到文件的开头，这样你可以从文件的开头再次读取数据，而不是在文件的当前位置继续读取。
 	  newFile.Seek(0,0)
-
 	  fileMeta.FileSha1 = util.FileSha1(newFile)
+		// NOTE: save to memory
 		// meta.UpdateFileMeta(fileMeta)
+		// NOTE: save to db
    meta.UpdateFileMetaDB(fileMeta)
-   http.Redirect(w, r, "./file/upload/suc", http.StatusFound)
+	 // NOTE: update user file table
+	 r.ParseForm()
+	 username := r.Form.Get("username")
+	 suc := db.OnUserFileUploadFinished(username, fileMeta.FileSha1, fileMeta.FileName, fileMeta.FileSize)
+	 if suc {
+		 http.Redirect(w, r, "/file/upload/suc", http.StatusFound)
+	 } else {
+		 w.Write([]byte("Upload Failed!"))
+	 }
 	}
 }
 
@@ -141,3 +152,20 @@ func FileDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func FileQueryHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	limitCnt, _ := strconv.Atoi(r.Form.Get("limit"))
+	username := r.Form.Get("username")
+	userFiles, err := db.QueryUserFileMetas(username, limitCnt)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(userFiles)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
+}

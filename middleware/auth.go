@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	userHandler "fileupload/handler/user"
+	"fileupload/handler"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ func HTTPInterceptor(h http.HandlerFunc) http.HandlerFunc {
 			username := r.Form.Get("username")
 			token := r.Form.Get("token")
 
-			if len(username) < 3 || !userHandler.IsTokenValid(token) {
+			if len(username) < 3 || !handler.IsTokenValid(token) {
 				w.WriteHeader(http.StatusForbidden)
 			return
 			}
