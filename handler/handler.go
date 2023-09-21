@@ -173,7 +173,6 @@ func FileQueryHandler(w http.ResponseWriter, r *http.Request) {
 
 func TryFastUploadHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	log.Printf("r.Form------", r.Form)
 	username := r.Form.Get("username")
 	filehash := r.Form.Get("filehash")
 	filename := r.Form.Get("filename")

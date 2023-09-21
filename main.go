@@ -26,9 +26,9 @@ func main(){
 	http.HandleFunc("/user/info", middleware.HTTPInterceptor(handler.UserInfoHandler))
 
 	// NOTE: multi-part
-	http.HandleFunc("/file/mpupload/init", handler.InitialMultipartUploadHandler)
-	http.HandleFunc("/file/mpupload/uppart",handler.UploadPartHandler)
-	http.HandleFunc("/file/mpupload/complete", handler.CompleteUploadHandler)
+	http.HandleFunc("/file/mpupload/init", middleware.HTTPInterceptor(handler.InitialMultipartUploadHandler))
+	http.HandleFunc("/file/mpupload/uppart",middleware.HTTPInterceptor( handler.UploadPartHandler ))
+	http.HandleFunc("/file/mpupload/complete", middleware.HTTPInterceptor( handler.CompleteUploadHandler ))
 
 
 	err := http.ListenAndServe(":8080", nil)
