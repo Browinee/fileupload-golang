@@ -5,6 +5,7 @@ import (
 	"fileupload/db"
 	"fileupload/util"
 	"fmt"
+	"log"
 	"math"
 	"net/http"
 	"os"
@@ -65,7 +66,7 @@ func UploadPartHandler(w http.ResponseWriter, r *http.Request) {
 	defer rConn.Close()
 
 	// NOTE
-	fpath := "/data/" + uploadID + "/" + chunkIndex
+	fpath := "./data/" + uploadID + "/" + chunkIndex
 	os.MkdirAll(path.Dir(fpath), 0744)
 	fd, err := os.Create(fpath)
 	if err != nil {

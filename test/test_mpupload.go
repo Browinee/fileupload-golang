@@ -80,7 +80,7 @@ func main() {
 	filehash := "dfa39cac093a7a9c94d25130671ec474d51a2995"
 
 	resp, err := http.PostForm(
-		"http://localhost:8089/file/mpupload/init",
+		"http://localhost:8080/file/mpupload/init",
 		url.Values{
 			"username": {username},
 			"token":    {token},
@@ -94,7 +94,7 @@ func main() {
 	}
 
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(-1)
@@ -104,13 +104,13 @@ func main() {
 	chunkSize := jsonit.Get(body, "data").Get("ChunkSize").ToInt()
 	fmt.Printf("uploadid: %s  chunksize: %d\n", uploadID, chunkSize)
 
-	filename := "E:\\elastic\\elasticsearch-7.1.0-windows-x86_64.zip"
-	tURL := "http://localhost:8089/file/mpupload/uppart?" +
+	filename := "./123.mp3"
+	tURL := "http://localhost:8080/file/mpupload/uppart?" +
 		"username=admin&token=" + token + "&uploadid=" + uploadID
 	multipartUpload(filename, tURL, chunkSize)
 
 	resp, err = http.PostForm(
-		"http://localhost:8089/file/mpupload/complete",
+		"http://localhost:8080/file/mpupload/complete",
 		url.Values{
 			"username": {username},
 			"token":    {token},
@@ -126,7 +126,7 @@ func main() {
 	}
 
 	defer resp.Body.Close()
-	body, err = ioutil.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(-1)
