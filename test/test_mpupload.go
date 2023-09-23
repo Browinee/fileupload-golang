@@ -33,7 +33,6 @@ func multipartUpload(filename string, targetURL string, chunkSize int) error {
 			break
 		}
 		index++
-
 		bufCopied := make([]byte, 5*1048576)
 		copy(bufCopied, buf)
 
@@ -49,7 +48,7 @@ func multipartUpload(filename string, targetURL string, chunkSize int) error {
 			}
 
 			body, er := ioutil.ReadAll(resp.Body)
-			fmt.Printf("%+v %+v\n", string(body), er)
+			fmt.Printf("goroutine %+v %+v\n", string(body), er)
 			resp.Body.Close()
 
 			ch <- curIdx
@@ -64,13 +63,11 @@ func multipartUpload(filename string, targetURL string, chunkSize int) error {
 		}
 	}
 
-	for idx := 0; idx < index; idx++ {
-		select {
-		case res := <-ch:
-			fmt.Println(res)
-		}
-	}
 
+	for idx := 0; idx < index; idx++ {
+		res := <-ch
+		fmt.Println("data from ch", res)
+	}
 	return nil
 }
 
